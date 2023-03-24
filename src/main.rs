@@ -19,6 +19,10 @@ use jsonrpsee::ws_client::WsClientBuilder;
 #[tokio::main]
 async fn main() {
     let client = WsClientBuilder::default().build("ws://localhost:26658").await.unwrap();
+
+    println!("Node info: \n {:?}", NodeClient::node_info(&client).await.unwrap());
+    println!("Header at height 1: \n {:?}", HeaderClient::get_by_height(&client, 1).await.unwrap());
+
     let mut sub: Subscription<ExtendedHeader> = HeaderClient::header_subscribe(&client).await.unwrap();
     while let Some(header) = sub.next().await {
         let dah = header.unwrap().dah;
