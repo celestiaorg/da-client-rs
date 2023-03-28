@@ -20,7 +20,6 @@ use std::env;
 use std::process::Command;
 use std::str;
 
-// TODO: network possibly still optional, but otherwise arabica does not work. apparently something else is default
 pub fn generate_auth_token(node_type: &str, auth_level: &str) -> Result<String, std::io::Error> {
     println!("Generating auth token for {} with auth level {}", node_type, auth_level);
     let output = Command::new("celestia")
@@ -45,7 +44,6 @@ pub fn generate_auth_token(node_type: &str, auth_level: &str) -> Result<String, 
     }
 }
 
-// charge mail mistake cannon brief subject crisp swear version library assist forum doll vehicle toast catch trim sponsor sauce hair cool dove jelly exercise
 pub async fn run_client() {
     // Load the .env file
     dotenv().ok();
