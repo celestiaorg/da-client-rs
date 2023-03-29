@@ -5,29 +5,23 @@ mod node;
 mod state;
 mod p2p;
 
-use jsonrpsee::{core::client::Subscription, ws_client::HeaderMap};
-use crate::{
-    state::StateClient,
-    node::NodeClient,
-    share::ShareClient,
-    header::HeaderClient,
-    p2p::P2PClient,
-    types::{ExtendedHeader, DataAvailabilityHeader, ExtendedDataSquare}
-};
+use jsonrpsee::{ws_client::{HeaderMap, WsClient}};
 use jsonrpsee::ws_client::WsClientBuilder;
 use dotenv::dotenv;
 use std::env;
 use std::process::Command;
 use std::str;
+use http::header::{HeaderValue, AUTHORIZATION};
 
-pub fn generate_auth_token(node_type: &str, auth_level: &str) -> Result<String, std::io::Error> {
+
+pub fn generate_auth_token(node_type: &str, auth_level: &str, network: &str) -> Result<String, std::io::Error> {
     println!("Generating auth token for {} with auth level {}", node_type, auth_level);
     let output = Command::new("celestia")
         .arg(node_type)
         .arg("auth")
         .arg(auth_level)
         .arg("--p2p.network")
-        .arg("arabica-6")
+        .arg(network)
         .output()?;
 
     if output.status.success() {
@@ -44,33 +38,55 @@ pub fn generate_auth_token(node_type: &str, auth_level: &str) -> Result<String, 
     }
 }
 
-pub async fn run_client() {
-    // Load the .env file
-    dotenv().ok();
-    
-    // TODO: should light and read be the default?
-    let node_type = env::var("NODE_TYPE").unwrap_or("light".to_string());
-    let auth_level = env::var("AUTH_LEVEL").unwrap_or( "read".to_string());
-
-    // Generate the auth token
-    let jwt_token = generate_auth_token(&node_type.as_str(), &auth_level.as_str()).unwrap();
-
-    // insert the auth token into the headers
+fn build_auth_headers(auth_token: Option<String>) -> HeaderMap {
+    // create a new header map to store the auth token
     let mut headers = HeaderMap::new();
-    headers.insert(http::header::AUTHORIZATION, http::header::HeaderValue::from_str(&format!("Bearer {}", jwt_token)).unwrap());
 
-    let client = WsClientBuilder::default().set_headers(headers).build("ws://localhost:26658").await.unwrap();
-
-    //println!("Node info: \n {:?}", NodeClient::node_info(&client).await.unwrap());
-    println!("Header at height 1: \n {:?}", HeaderClient::get_by_height(&client, 1).await.unwrap());
-
-    let mut sub: Subscription<ExtendedHeader> = HeaderClient::header_subscribe(&client).await.unwrap();
-    while let Some(header) = sub.next().await {
-        let dah = header.unwrap().dah;
-        if dah.row_roots.len() > 2 {
-            println!("Got header: \n {:?}", dah);
-           let square = client.get_eds(dah).await.unwrap();
-            println!("Found data square: \n {:?}", square);
+    let token = match auth_token {
+        // if an auth token is provided, use it
+        Some(token) => token,
+        None => {
+            // if no auth token is provided, try to load it from the .env file
+            dotenv().ok();
+            env::var("AUTH_TOKEN").expect("Auth token not found in environment variables")
         }
-    } 
+    };
+
+    // insert the auth token into the headers and return the headers
+    headers.insert(AUTHORIZATION, HeaderValue::from_str(&format!("Bearer {}", token)).expect("Failed to create Authorization header value"));
+    headers
 }
+
+pub struct CelestiaClient {
+    pub client: WsClient,
+}
+
+impl CelestiaClient {
+    // build a new public client without auth token
+    pub async fn new_public_client(connection_string: &str) -> Self {
+        let client = WsClientBuilder::default()
+            .build(connection_string)
+            .await
+            .expect("Failed to build the WebSocket client");
+
+        Self { client }
+    }
+
+    // build a new client auth token (if provided, otherwise try to load it from .env)
+    pub async fn new_client(
+        connection_string: &str,
+        auth_token: Option<String>,
+    ) -> Self {
+        let headers = build_auth_headers(auth_token);
+        let client = WsClientBuilder::default()
+            .set_headers(headers)
+            .build(connection_string)
+            .await
+            .expect("Failed to build the WebSocket client");
+
+        Self { client }
+    }
+}
+
+
+
