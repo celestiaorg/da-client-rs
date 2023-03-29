@@ -5,31 +5,19 @@ mod node;
 mod state;
 mod p2p;
 
-use jsonrpsee::core::client::Subscription;
-use crate::{
-    state::StateClient,
-    node::NodeClient,
-    share::ShareClient,
-    header::HeaderClient,
-    p2p::P2PClient,
-    types::{ExtendedHeader, DataAvailabilityHeader, ExtendedDataSquare}
-};
-use jsonrpsee::ws_client::WsClientBuilder;
 
+use da_client_rs::{generate_auth_token, CelestiaClient};
+use crate::{
+    header::HeaderClient,
+};
+
+// example
 #[tokio::main]
 async fn main() {
-    let client = WsClientBuilder::default().build("ws://localhost:26658").await.unwrap();
+    let token = generate_auth_token("light", "admin", "arabica-6").expect("Failed to generate auth token");
+    println!("Token: {}", &token);
 
-    println!("Node info: \n {:?}", NodeClient::node_info(&client).await.unwrap());
-    println!("Header at height 1: \n {:?}", HeaderClient::get_by_height(&client, 1).await.unwrap());
+    let celestia_client = CelestiaClient::new_client("ws://localhost:26658", Some(token)).await;
 
-    let mut sub: Subscription<ExtendedHeader> = HeaderClient::header_subscribe(&client).await.unwrap();
-    while let Some(header) = sub.next().await {
-        let dah = header.unwrap().dah;
-        if dah.row_roots.len() > 2 {
-            println!("Got header: \n {:?}", dah);
-           let square = client.get_eds(dah).await.unwrap();
-            println!("Found data square: \n {:?}", square);
-        }
-    }
+    println!("Header at height 1: \n {:?}", HeaderClient::get_by_height(&celestia_client.client, 1).await.unwrap());
 }
