@@ -26,6 +26,6 @@ pub trait Header {
     #[method(name = "header.NetworkHead")]
     async fn network_head(&self) -> Result<ExtendedHeader, Error>;
 
-    #[subscription(name = "header.Subscribe", unsubscribe = "unsub", item = ExtendedHeader)]
+    #[subscription(name = "header.Subscribe", unsubscribe = "unsub_header", item = ExtendedHeader)]
     fn header_subscribe(&self);
 }
