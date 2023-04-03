@@ -13,7 +13,7 @@ pub enum ProofType {
 #[derive(Deserialize, Debug)]
 pub struct ProofResponse {
     pub proof_type: String,
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }
 
 impl ProofResponse {
