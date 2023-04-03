@@ -16,3 +16,5 @@ tendermint-rpc = { version = "0.30.0" }
 jsonwebtoken = "8.3.0"
 dotenv = "0.15.0"
 http = "0.2.9"
+protobuf = "3.2.0"
+bytes = "1.1.0"

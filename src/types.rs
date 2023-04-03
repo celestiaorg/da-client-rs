@@ -32,7 +32,6 @@ pub struct DataAvailabilityHeader {
     pub row_roots: Vec<String>,
     pub column_roots: Vec<String>,
 }
-
 #[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
 pub struct AddrInfo {
     pub id: PeerId,

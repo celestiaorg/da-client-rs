@@ -1,10 +1,14 @@
+mod proto {
+    pub mod byzantine;
+    pub mod proof;
+}
 mod types;
+mod fraud;
 mod header;
 mod share;
 mod node;
 mod state;
 mod p2p;
-
 
 use da_client_rs::{generate_auth_token, CelestiaClient};
 use crate::{
