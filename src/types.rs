@@ -1,14 +1,5 @@
-use std::thread::sleep;
-use jsonrpsee::proc_macros::rpc;
-use jsonrpsee::http_client::HttpClientBuilder;
-use jsonrpsee::core::{Error, client::Subscription};
-use jsonrpsee::types::SubscriptionResult;
-use jsonrpsee::ws_client::WsClientBuilder;
 use serde::{Deserialize, Serialize};
 use libp2p::{PeerId, Multiaddr};
-use tendermint_rpc::endpoint::tx::DialectResponse as TxResponse;
-use tendermint::account::Id;
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ExtendedDataSquare {

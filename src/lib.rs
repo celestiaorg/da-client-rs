@@ -1,9 +1,9 @@
-mod types;
-mod header;
-mod share;
-mod node;
-mod state;
-mod p2p;
+pub mod types;
+pub mod header;
+pub mod share;
+pub mod node;
+pub mod state;
+pub mod p2p;
 
 use jsonrpsee::{ws_client::{HeaderMap, WsClient}};
 use jsonrpsee::ws_client::WsClientBuilder;
