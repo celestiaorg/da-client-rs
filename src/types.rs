@@ -10,6 +10,7 @@ pub struct ExtendedDataSquare {
 
 base64_serde_type!(pub(crate) Base64Standard, base64::engine::general_purpose::STANDARD);
 
+#[derive(Debug, Clone)]
 pub struct NamespaceId(Vec<u8>);
 
 impl NamespaceId {
