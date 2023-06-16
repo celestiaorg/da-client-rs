@@ -4,6 +4,7 @@ pub mod share;
 pub mod node;
 pub mod state;
 pub mod p2p;
+pub mod blob;
 
 use jsonrpsee::{ws_client::{HeaderMap, WsClient}};
 use jsonrpsee::ws_client::WsClientBuilder;

@@ -13,6 +13,8 @@ tokio = { version = "1", features = ["full"] }
 libp2p = { version = "0.51.1", features = ["serde"] }
 tendermint = { version = "0.30.0" }
 tendermint-rpc = { version = "0.30.0" }
+hex = "0.4.3"
+base64-serde = "0.7.0"
 jsonwebtoken = "8.3.0"
 dotenv = "0.15.0"
 http = "0.2.9"
